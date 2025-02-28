@@ -8,10 +8,8 @@ const app = express();
 const PORT = process.env.PORT || 5050;
 const SECRET_KEY = process.env.SECRET_KEY || "your_secret_key";
 
-
 app.use(cors());
 app.use(bodyParser.json());
-
 
 const users = [
   {
@@ -35,19 +33,21 @@ app.get("/", (req, res) => {
   });
 });
 
-
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
-  const user = users.find(u => u.username === username && u.password === password);
+  const user = users.find(
+    (u) => u.username === username && u.password === password
+  );
 
   if (!user) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
 
-  const token = jwt.sign({ id: user.id, username: user.username }, SECRET_KEY, { expiresIn: "1h" });
+  const token = jwt.sign({ id: user.id, username: user.username }, SECRET_KEY, {
+    expiresIn: "1h",
+  });
   res.json({ token });
 });
-
 
 const verifyToken = (req, res, next) => {
   const token = req.headers["authorization"];
@@ -64,11 +64,15 @@ const verifyToken = (req, res, next) => {
   });
 };
 
-
-
-
 app.get("/data", verifyToken, (req, res) => {
-  res.json({ message: "Protected Data Accessed", user: users.find(u => u.id === req.user.id) });
+
+  let user =  users.find((u) => u.id === req.user.id )
+  user = { ...user, password: undefined }
+
+  res.json({
+    message: "Protected Data Accessed",
+    user
+  });
 });
 
 
