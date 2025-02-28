@@ -36,6 +36,20 @@ app.get("/", (req, res) => {
 });
 
 
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
+  const user = users.find(u => u.username === username && u.password === password);
+
+  if (!user) {
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
+
+  const token = jwt.sign({ id: user.id, username: user.username }, SECRET_KEY, { expiresIn: "1h" });
+  res.json({ token });
+});
+
+
+
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)
 );
