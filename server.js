@@ -42,7 +42,7 @@ app.get("/", (req, res) => {
     message: "WELLCOME TO THE API",
     get_jwt: "POST /login { username, password }",
     data: "GET /data",
-    user: "GET /users",
+    users: "GET /users",
   });
 });
 
