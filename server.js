@@ -28,7 +28,7 @@ const users = [
 
 app.get("/", (req, res) => {
   res.json({
-    message: "wELLCOME TO THE API",
+    message: "WELLCOME TO THE API",
     get_jwt: "POST /login { username, password }",
     data: "GET /data",
     user: "GET /users",
@@ -46,6 +46,29 @@ app.post("/login", (req, res) => {
 
   const token = jwt.sign({ id: user.id, username: user.username }, SECRET_KEY, { expiresIn: "1h" });
   res.json({ token });
+});
+
+
+const verifyToken = (req, res, next) => {
+  const token = req.headers["authorization"];
+  if (!token) {
+    return res.status(403).json({ message: "Token required" });
+  }
+
+  jwt.verify(token.split(" ")[1], SECRET_KEY, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+    req.user = decoded;
+    next();
+  });
+};
+
+
+
+
+app.get("/data", verifyToken, (req, res) => {
+  res.json({ message: "Protected Data Accessed", user: users.find(u => u.id === req.user.id) });
 });
 
 
