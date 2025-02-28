@@ -11,6 +11,7 @@ const SECRET_KEY = process.env.SECRET_KEY || "your_secret_key";
 app.use(cors());
 app.use(bodyParser.json());
 
+// Dummy users
 const users = [
   {
     id: 1,
@@ -22,8 +23,20 @@ const users = [
     phone: "1234567890",
     address: "123, Example Street, City, Country",
   },
+  {
+    id: 2,
+    username: "user",
+    password: "password123",
+    email: "user@mail.com",
+    role: "user",
+    name: "Normal User",
+    phone: "1234567890",
+    address: "123, Example Street, City, Country",
+  },
 ];
 
+// ----------Routes----------
+// Base route
 app.get("/", (req, res) => {
   res.json({
     message: "WELLCOME TO THE API",
@@ -33,6 +46,7 @@ app.get("/", (req, res) => {
   });
 });
 
+// Login route
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
   const user = users.find(
@@ -49,6 +63,7 @@ app.post("/login", (req, res) => {
   res.json({ token });
 });
 
+// Verify token
 const verifyToken = (req, res, next) => {
   const token = req.headers["authorization"];
   if (!token) {
@@ -64,19 +79,28 @@ const verifyToken = (req, res, next) => {
   });
 };
 
+// Protected routes with token for access current user data
 app.get("/data", verifyToken, (req, res) => {
-
-  let user =  users.find((u) => u.id === req.user.id )
-  user = { ...user, password: undefined }
+  let user = users.find((u) => u.id === req.user.id);
+  user = { ...user, password: undefined };
 
   res.json({
     message: "Protected Data Accessed",
-    user
+    user,
   });
 });
 
 
+// Protected routes with token for access all users data
+app.get("/users", verifyToken, (req, res) => {
+  let new_users = users.map((u) => {
+    return { ...u, password: undefined };
+  });
+  res.json({ users: new_users });
+});
 
+
+// Start server
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)
 );
